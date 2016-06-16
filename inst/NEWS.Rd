@@ -3,7 +3,7 @@
 \encoding{UTF-8}
 
 
-\section{Version 0.2.2}{
+\section{Version 0.5.0}{
   \itemize{
     \item Added NEWS files.
     \item Added several dbSNP versions.

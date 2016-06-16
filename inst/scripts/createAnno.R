@@ -1,10 +1,14 @@
 library(minfi)
-manifest.file <- "~/Work/cegs/450k/data_files/HumanMethylation450_15017482_v.1.2.csv"
-manifest <- minfi:::read.manifest(manifest.file)
+manifestFile <- "../../../IlluminaHumanMethylation450k_files/data/HumanMethylation450_15017482_v.1.2.csv"
+if(!file.exists(manifestFile)) {
+    cat("Missing files, quitting\n")
+    q(save = "no")
+}
+maniTmp <- minfi:::read.manifest.450k(manifestFile)
 
 ## Manifest package
 
-manifestList <- manifest$manifestList
+manifestList <- maniTmp$manifestList
 IlluminaHumanMethylation450kmanifest <- do.call(IlluminaMethylationManifest,
                                                 list(TypeI = manifestList$TypeI,
                                                      TypeII = manifestList$TypeII,
@@ -12,12 +16,12 @@ IlluminaHumanMethylation450kmanifest <- do.call(IlluminaMethylationManifest,
                                                      TypeSnpI = manifestList$TypeSnpI,
                                                      TypeSnpII = manifestList$TypeSnpII,
                                                      annotation = "IlluminaHumanMethylation450k"))
-save(IlluminaHumanMethylation450kmanifest, # compress = "xz",
-     file = "IlluminaHumanMethylation450kmanifest.rda")
+## save(IlluminaHumanMethylation450kmanifest, # compress = "xz",
+##      file = "IlluminaHumanMethylation450kmanifest.rda")
 
 ## Annotation package
 
-anno <- manifest$manifest
+anno <- maniTmp$manifest
 anno$IlmnID <- NULL
 nam <- names(anno)
 names(nam) <- nam
@@ -70,25 +74,39 @@ Other <- as(Other, "DataFrame")
 map <- cbind(Locations, Manifest)
 map <- GRanges(seqnames = map$chr, ranges = IRanges(start = map$pos, width = 1),
                Strand = map$strand, Type = map$Type)
-map <- minfi:::getProbePositionsDetailed(map)
+map <- minfi:::.getProbePositionsDetailed(map)
 names(map) <- rownames(Locations)
 
-## 137
-load("../../../snps/objects/grSnp137CommonSingle.rda")
+load("extdata/grSnp146CommonSingle.rda")
+SNPs.146CommonSingle <- minfi:::.doSnpOverlap(map, grSnp146CommonSingle)
+load("extdata/grSnp144CommonSingle.rda")
+SNPs.144CommonSingle <- minfi:::.doSnpOverlap(map, grSnp144CommonSingle)
+load("extdata/grSnp142CommonSingle.rda")
+SNPs.142CommonSingle <- minfi:::.doSnpOverlap(map, grSnp142CommonSingle)
+load("extdata/grSnp141CommonSingle.rda")
+SNPs.141CommonSingle <- minfi:::.doSnpOverlap(map, grSnp141CommonSingle)
+load("extdata/grSnp138CommonSingle.rda")
+SNPs.138CommonSingle <- minfi:::.doSnpOverlap(map, grSnp138CommonSingle)
+load("extdata/grSnp137CommonSingle.rda")
 SNPs.137CommonSingle <- minfi:::.doSnpOverlap(map, grSnp137CommonSingle)
-load("../../../snps/objects/grSnp135CommonSingle.rda")
+load("extdata/grSnp135CommonSingle.rda")
 SNPs.135CommonSingle <- minfi:::.doSnpOverlap(map, grSnp135CommonSingle)
-load("../../../snps/objects/grSnp132CommonSingle.rda")
+load("extdata/grSnp132CommonSingle.rda")
 SNPs.132CommonSingle <- minfi:::.doSnpOverlap(map, grSnp132CommonSingle)
 
 annoStr <- c(array = "IlluminaHumanMethylation450k",
              annotation = "ilmn12",
              genomeBuild = "hg19")
-defaults <- c("Locations", "Manifest", "SNPs.137CommonSingle", "Islands.UCSC", "Other")
+defaults <- c("Locations", "Manifest", "SNPs.146CommonSingle", "Islands.UCSC", "Other")
 annoObj <-
     IlluminaMethylationAnnotation(list(Locations = Locations,
                                        Manifest = Manifest,
                                        SNPs.Illumina = SNPs.Illumina,
+                                       SNPs.146CommonSingle = SNPs.146CommonSingle,
+                                       SNPs.144CommonSingle = SNPs.144CommonSingle,
+                                       SNPs.142CommonSingle = SNPs.142CommonSingle,
+                                       SNPs.141CommonSingle = SNPs.141CommonSingle,
+                                       SNPs.138CommonSingle = SNPs.138CommonSingle,
                                        SNPs.137CommonSingle = SNPs.137CommonSingle,
                                        SNPs.135CommonSingle = SNPs.135CommonSingle,
                                        SNPs.132CommonSingle = SNPs.132CommonSingle,
@@ -103,5 +121,7 @@ annoName <- sprintf("%sanno.%s.%s", annoStr["array"], annoStr["annotation"],
 cat("creating object:", annoName, "\n")
 assign(annoName, annoObj)
 save(list = annoName,
-     file = paste(annoName, "rda", sep = "."), compress = "xz")
+     file = file.path("../../data", paste(annoName, "rda", sep = ".")), compress = "xz")
+sessionInfo()
+q(save = "no")
 
