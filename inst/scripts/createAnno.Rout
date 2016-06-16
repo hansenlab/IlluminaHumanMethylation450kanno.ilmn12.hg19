@@ -1,0 +1,278 @@
+
+R version 3.3.1 RC (2016-06-14 r70789) -- "Bug in Your Hair"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(minfi)
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:parallel’:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, append, as.data.frame, cbind, colnames, do.call,
+    duplicated, eval, evalq, Filter, Find, get, grep, grepl, intersect,
+    is.unsorted, lapply, lengths, Map, mapply, match, mget, order,
+    paste, pmax, pmax.int, pmin, pmin.int, Position, rank, rbind,
+    Reduce, rownames, sapply, setdiff, sort, table, tapply, union,
+    unique, unsplit, which, which.max, which.min
+
+Loading required package: Biobase
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+Loading required package: lattice
+Loading required package: GenomicRanges
+Loading required package: stats4
+Loading required package: S4Vectors
+
+Attaching package: ‘S4Vectors’
+
+The following objects are masked from ‘package:base’:
+
+    colMeans, colSums, expand.grid, rowMeans, rowSums
+
+Loading required package: IRanges
+Loading required package: GenomeInfoDb
+Loading required package: SummarizedExperiment
+Loading required package: Biostrings
+Loading required package: XVector
+Loading required package: bumphunter
+Loading required package: foreach
+Loading required package: iterators
+Loading required package: locfit
+locfit 1.5-9.1 	 2013-03-22
+Setting options('download.file.method.GEOquery'='auto')
+Setting options('GEOquery.inmemory.gpl'=FALSE)
+> manifestFile <- "../../../IlluminaHumanMethylation450k_files/data/HumanMethylation450_15017482_v.1.2.csv"
+> if(!file.exists(manifestFile)) {
++     cat("Missing files, quitting\n")
++     q(save = "no")
++ }
+> maniTmp <- minfi:::read.manifest.450k(manifestFile)
+> 
+> ## Manifest package
+> 
+> manifestList <- maniTmp$manifestList
+> IlluminaHumanMethylation450kmanifest <- do.call(IlluminaMethylationManifest,
++                                                 list(TypeI = manifestList$TypeI,
++                                                      TypeII = manifestList$TypeII,
++                                                      TypeControl = manifestList$TypeControl,
++                                                      TypeSnpI = manifestList$TypeSnpI,
++                                                      TypeSnpII = manifestList$TypeSnpII,
++                                                      annotation = "IlluminaHumanMethylation450k"))
+> ## save(IlluminaHumanMethylation450kmanifest, # compress = "xz",
+> ##      file = "IlluminaHumanMethylation450kmanifest.rda")
+> 
+> ## Annotation package
+> 
+> anno <- maniTmp$manifest
+> anno$IlmnID <- NULL
+> nam <- names(anno)
+> names(nam) <- nam
+> nam[c("AddressA_ID", "AddressB_ID", "AlleleA_ProbeSeq", "AlleleB_ProbeSeq",
++             "Infinium_Design_Type", "Next_Base", "Color_Channel")] <-  c("AddressA", "AddressB",
++                                                                          "ProbeSeqA", "ProbeSeqB",
++                                                                          "Type", "NextBase", "Color")
+> 
+> names(nam) <- NULL
+> names(anno) <- nam
+> rownames(anno) <- anno$Name
+> anno <- anno[getManifestInfo(IlluminaHumanMethylation450kmanifest, type = "locusNames"),]
+> 
+> Locations <- anno[, c("CHR", "MAPINFO")]
+> names(Locations) <- c("chr", "pos")
+> Locations$pos <- as.integer(Locations$pos)
+> Locations$chr <- paste("chr", Locations$chr, sep = "")
+> Locations$strand <- ifelse(anno$Strand == "F", "+", "-")
+> table(Locations$chr, exclude = NULL)
+
+ chr1 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19  chr2 chr20 
+46857 24388 28794 24539 12285 15078 15259 21969 27879  5922 25521 34810 10379 
+chr21 chr22  chr3  chr4  chr5  chr6  chr7  chr8  chr9  chrX  chrY  <NA> 
+ 4243  8552 25159 20464 24327 36611 30017 20950  9861 11232   416     0 
+> rownames(Locations) <- anno$Name
+> Locations <- as(Locations, "DataFrame")
+> 
+> Manifest <- anno[, c("Name", "AddressA", "AddressB",
++                      "ProbeSeqA", "ProbeSeqB", "Type", "NextBase", "Color")]
+> Manifest <- as(Manifest, "DataFrame")
+> 
+> SNPs.Illumina <- anno[, c("Probe_SNPs", "Probe_SNPs_10")]
+> SNPs.Illumina <- as(SNPs.Illumina, "DataFrame")
+> 
+> Islands.UCSC <- anno[, c("UCSC_CpG_Islands_Name", "Relation_to_UCSC_CpG_Island")]
+> names(Islands.UCSC) <- c("Islands_Name", "Relation_to_Island")
+> Islands.UCSC <- as(Islands.UCSC, "DataFrame")
+> Islands.UCSC$Relation_to_Island[Islands.UCSC$Relation_to_Island == ""] <- "OpenSea"
+> table(Islands.UCSC$Relation_to_Island, exclude = NULL)
+
+ Island N_Shelf N_Shore OpenSea S_Shelf S_Shore    <NA> 
+ 150254   24844   62870  176047   22300   49197       0 
+> 
+> usedColumns <- c(names(Manifest), names(SNPs.Illumina), 
++                  c("CHR", "MAPINFO", "Strand",
++                    "Chromosome_36", "Coordinate_36", "Genome_Build"),
++                  c("UCSC_CpG_Islands_Name", "Relation_to_UCSC_CpG_Island"))
+> Other <- anno[, setdiff(names(anno), usedColumns)]
+> Other <- as(Other, "DataFrame")
+> 
+> ## We now use an exisitng grSnp object containing a GRanges of relevant SNPs.
+> ## This is created in a separate script
+> 
+> ##
+> ## SNP overlap
+> ##
+> 
+> map <- cbind(Locations, Manifest)
+> map <- GRanges(seqnames = map$chr, ranges = IRanges(start = map$pos, width = 1),
++                Strand = map$strand, Type = map$Type)
+> map <- minfi:::.getProbePositionsDetailed(map)
+> names(map) <- rownames(Locations)
+> 
+> load("extdata/grSnp146CommonSingle.rda")
+> SNPs.146CommonSingle <- minfi:::.doSnpOverlap(map, grSnp146CommonSingle)
+removing Snps with width != 1
+> load("extdata/grSnp144CommonSingle.rda")
+> SNPs.144CommonSingle <- minfi:::.doSnpOverlap(map, grSnp144CommonSingle)
+removing Snps with width != 1
+> load("extdata/grSnp142CommonSingle.rda")
+> SNPs.142CommonSingle <- minfi:::.doSnpOverlap(map, grSnp142CommonSingle)
+removing Snps with width != 1
+> load("extdata/grSnp141CommonSingle.rda")
+> SNPs.141CommonSingle <- minfi:::.doSnpOverlap(map, grSnp141CommonSingle)
+removing Snps with width != 1
+> load("extdata/grSnp138CommonSingle.rda")
+> SNPs.138CommonSingle <- minfi:::.doSnpOverlap(map, grSnp138CommonSingle)
+removing Snps with width != 1
+> load("extdata/grSnp137CommonSingle.rda")
+> SNPs.137CommonSingle <- minfi:::.doSnpOverlap(map, grSnp137CommonSingle)
+removing Snps with width != 1
+> load("extdata/grSnp135CommonSingle.rda")
+> SNPs.135CommonSingle <- minfi:::.doSnpOverlap(map, grSnp135CommonSingle)
+removing Snps with width != 1
+> load("extdata/grSnp132CommonSingle.rda")
+> SNPs.132CommonSingle <- minfi:::.doSnpOverlap(map, grSnp132CommonSingle)
+removing Snps with width != 1
+> 
+> annoStr <- c(array = "IlluminaHumanMethylation450k",
++              annotation = "ilmn12",
++              genomeBuild = "hg19")
+> defaults <- c("Locations", "Manifest", "SNPs.146CommonSingle", "Islands.UCSC", "Other")
+> annoObj <-
++     IlluminaMethylationAnnotation(list(Locations = Locations,
++                                        Manifest = Manifest,
++                                        SNPs.Illumina = SNPs.Illumina,
++                                        SNPs.146CommonSingle = SNPs.146CommonSingle,
++                                        SNPs.144CommonSingle = SNPs.144CommonSingle,
++                                        SNPs.142CommonSingle = SNPs.142CommonSingle,
++                                        SNPs.141CommonSingle = SNPs.141CommonSingle,
++                                        SNPs.138CommonSingle = SNPs.138CommonSingle,
++                                        SNPs.137CommonSingle = SNPs.137CommonSingle,
++                                        SNPs.135CommonSingle = SNPs.135CommonSingle,
++                                        SNPs.132CommonSingle = SNPs.132CommonSingle,
++                                        Islands.UCSC = Islands.UCSC,
++                                        Other = Other
++                                        ),
++                                   annotation = annoStr, defaults = defaults)
+Locations 
+Manifest 
+SNPs.Illumina 
+SNPs.146CommonSingle 
+SNPs.144CommonSingle 
+SNPs.142CommonSingle 
+SNPs.141CommonSingle 
+SNPs.138CommonSingle 
+SNPs.137CommonSingle 
+SNPs.135CommonSingle 
+SNPs.132CommonSingle 
+Islands.UCSC 
+Other 
+> validObject(annoObj)
+[1] TRUE
+> 
+> annoName <- sprintf("%sanno.%s.%s", annoStr["array"], annoStr["annotation"],
++                     annoStr["genomeBuild"])
+> cat("creating object:", annoName, "\n")
+creating object: IlluminaHumanMethylation450kanno.ilmn12.hg19 
+> assign(annoName, annoObj)
+> save(list = annoName,
++      file = file.path("../../data", paste(annoName, "rda", sep = ".")), compress = "xz")
+> sessionInfo()
+R version 3.3.1 RC (2016-06-14 r70789)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Red Hat Enterprise Linux Server release 6.5 (Santiago)
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats4    parallel  stats     graphics  grDevices utils     datasets 
+[8] methods   base     
+
+other attached packages:
+ [1] minfi_1.19.4               bumphunter_1.13.0         
+ [3] locfit_1.5-9.1             iterators_1.0.8           
+ [5] foreach_1.4.3              Biostrings_2.41.3         
+ [7] XVector_0.13.0             SummarizedExperiment_1.3.4
+ [9] GenomicRanges_1.25.4       GenomeInfoDb_1.9.1        
+[11] IRanges_2.7.6              S4Vectors_0.11.4          
+[13] lattice_0.20-33            Biobase_2.33.0            
+[15] BiocGenerics_0.19.1       
+
+loaded via a namespace (and not attached):
+ [1] genefilter_1.55.2       splines_3.3.1           beanplot_1.2           
+ [4] rtracklayer_1.33.7      GenomicFeatures_1.25.12 chron_2.3-47           
+ [7] XML_3.98-1.4            survival_2.39-4         DBI_0.4-1              
+[10] BiocParallel_1.7.2      RColorBrewer_1.1-2      registry_0.3           
+[13] rngtools_1.2.4          doRNG_1.6               matrixStats_0.50.2     
+[16] plyr_1.8.4              pkgmaker_0.22           stringr_1.0.0          
+[19] zlibbioc_1.19.0         codetools_0.2-14        biomaRt_2.29.2         
+[22] AnnotationDbi_1.35.3    illuminaio_0.15.0       preprocessCore_1.35.0  
+[25] Rcpp_0.12.5             xtable_1.8-2            openssl_0.9.4          
+[28] limma_3.29.8            base64_2.0              annotate_1.51.0        
+[31] Rsamtools_1.25.0        digest_0.6.9            stringi_1.1.1          
+[34] nor1mix_1.2-1           grid_3.3.1              quadprog_1.5-5         
+[37] GEOquery_2.39.3         tools_3.3.1             bitops_1.0-6           
+[40] magrittr_1.5            siggenes_1.47.0         RCurl_1.95-4.8         
+[43] RSQLite_1.0.0           MASS_7.3-45             Matrix_1.2-6           
+[46] data.table_1.9.6        httr_1.2.0              reshape_0.8.5          
+[49] R6_2.1.2                mclust_5.2              GenomicAlignments_1.9.2
+[52] multtest_2.29.0         nlme_3.1-128           
+> q(save = "no")
+> proc.time()
+    user   system  elapsed 
+1070.094   13.210 1086.071 
