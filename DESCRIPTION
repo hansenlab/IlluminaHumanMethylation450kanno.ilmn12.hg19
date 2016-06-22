@@ -1,5 +1,5 @@
 Package: IlluminaHumanMethylation450kanno.ilmn12.hg19
-Version: 0.5.0
+Version: 0.5.1
 Title: Annotation for Illumina's 450k methylation arrays
 Description: Manifests and annotation for Illumina's 450k array data.
 Author: Kasper Daniel Hansen

@@ -97,7 +97,7 @@ SNPs.132CommonSingle <- minfi:::.doSnpOverlap(map, grSnp132CommonSingle)
 annoStr <- c(array = "IlluminaHumanMethylation450k",
              annotation = "ilmn12",
              genomeBuild = "hg19")
-defaults <- c("Locations", "Manifest", "SNPs.146CommonSingle", "Islands.UCSC", "Other")
+defaults <- c("Locations", "Manifest", "SNPs.137CommonSingle", "Islands.UCSC", "Other")
 annoObj <-
     IlluminaMethylationAnnotation(list(Locations = Locations,
                                        Manifest = Manifest,
