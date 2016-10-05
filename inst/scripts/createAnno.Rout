@@ -158,6 +158,9 @@ chr21 chr22  chr3  chr4  chr5  chr6  chr7  chr8  chr9  chrX  chrY  <NA>
 > map <- minfi:::.getProbePositionsDetailed(map)
 > names(map) <- rownames(Locations)
 > 
+> load("extdata/grSnp147CommonSingle.rda")
+> SNPs.147CommonSingle <- minfi:::.doSnpOverlap(map, grSnp147CommonSingle)
+removing Snps with width != 1
 > load("extdata/grSnp146CommonSingle.rda")
 > SNPs.146CommonSingle <- minfi:::.doSnpOverlap(map, grSnp146CommonSingle)
 removing Snps with width != 1
@@ -185,13 +188,28 @@ removing Snps with width != 1
 > 
 > ## Making the package.  First we save all the objects
 > 
-> annoNames <- c("Locations", "Manifest", "SNPs.Illumina", "SNPs.146CommonSingle",
+> annoNames <- c("Locations", "Manifest", "SNPs.Illumina", "SNPs.147CommonSingle", "SNPs.146CommonSingle",
 +                "SNPs.144CommonSingle", "SNPs.142CommonSingle", "SNPs.141CommonSingle",
 +                "SNPs.138CommonSingle", "SNPs.137CommonSingle", "SNPs.135CommonSingle",
 +                "SNPs.132CommonSingle", "Islands.UCSC", "Other")
 > for(nam in annoNames) {
++     cat(nam, "\n")
 +     save(list = nam, file = file.path("../../data", paste(nam, "rda", sep = ".")), compress = "xz")
 + }
+Locations 
+Manifest 
+SNPs.Illumina 
+SNPs.147CommonSingle 
+SNPs.146CommonSingle 
+SNPs.144CommonSingle 
+SNPs.142CommonSingle 
+SNPs.141CommonSingle 
+SNPs.138CommonSingle 
+SNPs.137CommonSingle 
+SNPs.135CommonSingle 
+SNPs.132CommonSingle 
+Islands.UCSC 
+Other 
 > annoStr <- c(array = "IlluminaHumanMethylation450k",
 +              annotation = "ilmn12",
 +              genomeBuild = "hg19")
@@ -228,13 +246,13 @@ other attached packages:
  [5] foreach_1.4.3               Biostrings_2.41.4          
  [7] XVector_0.13.7              SummarizedExperiment_1.3.82
  [9] GenomicRanges_1.25.94       GenomeInfoDb_1.9.13        
-[11] IRanges_2.7.16              S4Vectors_0.11.17          
+[11] IRanges_2.7.16              S4Vectors_0.11.18          
 [13] lattice_0.20-34             Biobase_2.33.3             
 [15] BiocGenerics_0.19.2        
 
 loaded via a namespace (and not attached):
  [1] genefilter_1.55.2       splines_3.3.1           beanplot_1.2           
- [4] rtracklayer_1.33.12     GenomicFeatures_1.25.16 chron_2.3-47           
+ [4] rtracklayer_1.33.12     GenomicFeatures_1.25.20 chron_2.3-47           
  [7] XML_3.98-1.4            survival_2.39-5         DBI_0.5-1              
 [10] BiocParallel_1.7.8      RColorBrewer_1.1-2      registry_0.3           
 [13] rngtools_1.2.4          doRNG_1.6               matrixStats_0.50.2     
@@ -243,7 +261,7 @@ loaded via a namespace (and not attached):
 [22] AnnotationDbi_1.35.4    illuminaio_0.15.1       preprocessCore_1.35.0  
 [25] Rcpp_0.12.7             xtable_1.8-2            openssl_0.9.4          
 [28] limma_3.29.21           base64_2.0              annotate_1.51.1        
-[31] Rsamtools_1.25.2        digest_0.6.10           stringi_1.1.1          
+[31] Rsamtools_1.25.2        digest_0.6.10           stringi_1.1.2          
 [34] nor1mix_1.2-2           grid_3.3.1              GEOquery_2.39.4        
 [37] quadprog_1.5-5          tools_3.3.1             bitops_1.0-6           
 [40] magrittr_1.5            siggenes_1.47.0         RCurl_1.95-4.8         
@@ -254,4 +272,4 @@ loaded via a namespace (and not attached):
 > q(save = "no")
 > proc.time()
    user  system elapsed 
-599.025  10.624 612.544 
+639.552  17.066 659.298 

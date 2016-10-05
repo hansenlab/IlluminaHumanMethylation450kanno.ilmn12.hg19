@@ -48,3 +48,7 @@ save(grSnp144CommonSingle, file = "objects/grSnp144CommonSingle.rda")
 grSnp146CommonSingle <- processUCSCsnp("files/snp146Common_small.txt.gz")
 save(grSnp146CommonSingle, file = "objects/grSnp146CommonSingle.rda")
 
+grSnp147CommonSingle <- processUCSCsnp("files/snp147Common_small.txt.gz")
+save(grSnp147CommonSingle, file = "objects/grSnp147CommonSingle.rda")
+
+

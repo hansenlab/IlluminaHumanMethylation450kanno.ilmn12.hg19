@@ -77,6 +77,8 @@ map <- GRanges(seqnames = map$chr, ranges = IRanges(start = map$pos, width = 1),
 map <- minfi:::.getProbePositionsDetailed(map)
 names(map) <- rownames(Locations)
 
+load("extdata/grSnp147CommonSingle.rda")
+SNPs.147CommonSingle <- minfi:::.doSnpOverlap(map, grSnp147CommonSingle)
 load("extdata/grSnp146CommonSingle.rda")
 SNPs.146CommonSingle <- minfi:::.doSnpOverlap(map, grSnp146CommonSingle)
 load("extdata/grSnp144CommonSingle.rda")
@@ -96,11 +98,12 @@ SNPs.132CommonSingle <- minfi:::.doSnpOverlap(map, grSnp132CommonSingle)
 
 ## Making the package.  First we save all the objects
 
-annoNames <- c("Locations", "Manifest", "SNPs.Illumina", "SNPs.146CommonSingle",
+annoNames <- c("Locations", "Manifest", "SNPs.Illumina", "SNPs.147CommonSingle", "SNPs.146CommonSingle",
                "SNPs.144CommonSingle", "SNPs.142CommonSingle", "SNPs.141CommonSingle",
                "SNPs.138CommonSingle", "SNPs.137CommonSingle", "SNPs.135CommonSingle",
                "SNPs.132CommonSingle", "Islands.UCSC", "Other")
 for(nam in annoNames) {
+    cat(nam, "\n")
     save(list = nam, file = file.path("../../data", paste(nam, "rda", sep = ".")), compress = "xz")
 }
 annoStr <- c(array = "IlluminaHumanMethylation450k",
