@@ -1,5 +1,5 @@
 
-R version 3.3.1 Patched (2016-06-21 r70802) -- "Bug in Your Hair"
+R version 3.3.1 Patched (2016-09-30 r71426) -- "Bug in Your Hair"
 Copyright (C) 2016 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
@@ -183,53 +183,32 @@ removing Snps with width != 1
 > SNPs.132CommonSingle <- minfi:::.doSnpOverlap(map, grSnp132CommonSingle)
 removing Snps with width != 1
 > 
+> ## Making the package.  First we save all the objects
+> 
+> annoNames <- c("Locations", "Manifest", "SNPs.Illumina", "SNPs.146CommonSingle",
++                "SNPs.144CommonSingle", "SNPs.142CommonSingle", "SNPs.141CommonSingle",
++                "SNPs.138CommonSingle", "SNPs.137CommonSingle", "SNPs.135CommonSingle",
++                "SNPs.132CommonSingle", "Islands.UCSC", "Other")
+> for(nam in annoNames) {
++     save(list = nam, file = file.path("../../data", paste(nam, "rda", sep = ".")), compress = "xz")
++ }
 > annoStr <- c(array = "IlluminaHumanMethylation450k",
 +              annotation = "ilmn12",
 +              genomeBuild = "hg19")
 > defaults <- c("Locations", "Manifest", "SNPs.137CommonSingle", "Islands.UCSC", "Other")
-> annoObj <-
-+     IlluminaMethylationAnnotation(list(Locations = Locations,
-+                                        Manifest = Manifest,
-+                                        SNPs.Illumina = SNPs.Illumina,
-+                                        SNPs.146CommonSingle = SNPs.146CommonSingle,
-+                                        SNPs.144CommonSingle = SNPs.144CommonSingle,
-+                                        SNPs.142CommonSingle = SNPs.142CommonSingle,
-+                                        SNPs.141CommonSingle = SNPs.141CommonSingle,
-+                                        SNPs.138CommonSingle = SNPs.138CommonSingle,
-+                                        SNPs.137CommonSingle = SNPs.137CommonSingle,
-+                                        SNPs.135CommonSingle = SNPs.135CommonSingle,
-+                                        SNPs.132CommonSingle = SNPs.132CommonSingle,
-+                                        Islands.UCSC = Islands.UCSC,
-+                                        Other = Other
-+                                        ),
-+                                   annotation = annoStr, defaults = defaults)
-Locations 
-Manifest 
-SNPs.Illumina 
-SNPs.146CommonSingle 
-SNPs.144CommonSingle 
-SNPs.142CommonSingle 
-SNPs.141CommonSingle 
-SNPs.138CommonSingle 
-SNPs.137CommonSingle 
-SNPs.135CommonSingle 
-SNPs.132CommonSingle 
-Islands.UCSC 
-Other 
-> validObject(annoObj)
-[1] TRUE
-> 
-> annoName <- sprintf("%sanno.%s.%s", annoStr["array"], annoStr["annotation"],
+> pkgName <- sprintf("%sanno.%s.%s", annoStr["array"], annoStr["annotation"],
 +                     annoStr["genomeBuild"])
-> cat("creating object:", annoName, "\n")
-creating object: IlluminaHumanMethylation450kanno.ilmn12.hg19 
-> assign(annoName, annoObj)
-> save(list = annoName,
-+      file = file.path("../../data", paste(annoName, "rda", sep = ".")), compress = "xz")
+> 
+> annoObj <- IlluminaMethylationAnnotation(objectNames = annoNames, annotation = annoStr,
++                               defaults = defaults, packageName = pkgName)
+> 
+> assign(pkgName, annoObj)
+> save(list = pkgName,
++      file = file.path("../../data", paste(pkgName, "rda", sep = ".")), compress = "xz")
 > sessionInfo()
-R version 3.3.1 Patched (2016-06-21 r70802)
+R version 3.3.1 Patched (2016-09-30 r71426)
 Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Red Hat Enterprise Linux Server release 6.5 (Santiago)
+Running under: Red Hat Enterprise Linux Server release 6.6 (Santiago)
 
 locale:
  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
@@ -244,35 +223,35 @@ attached base packages:
 [8] methods   base     
 
 other attached packages:
- [1] minfi_1.19.4               bumphunter_1.13.0         
- [3] locfit_1.5-9.1             iterators_1.0.8           
- [5] foreach_1.4.3              Biostrings_2.41.4         
- [7] XVector_0.13.2             SummarizedExperiment_1.3.5
- [9] GenomicRanges_1.25.4       GenomeInfoDb_1.9.1        
-[11] IRanges_2.7.6              S4Vectors_0.11.5          
-[13] lattice_0.20-33            Biobase_2.33.0            
-[15] BiocGenerics_0.19.1       
+ [1] minfi_1.19.15               bumphunter_1.13.1          
+ [3] locfit_1.5-9.1              iterators_1.0.8            
+ [5] foreach_1.4.3               Biostrings_2.41.4          
+ [7] XVector_0.13.7              SummarizedExperiment_1.3.82
+ [9] GenomicRanges_1.25.94       GenomeInfoDb_1.9.13        
+[11] IRanges_2.7.16              S4Vectors_0.11.17          
+[13] lattice_0.20-34             Biobase_2.33.3             
+[15] BiocGenerics_0.19.2        
 
 loaded via a namespace (and not attached):
  [1] genefilter_1.55.2       splines_3.3.1           beanplot_1.2           
- [4] rtracklayer_1.33.7      GenomicFeatures_1.25.12 chron_2.3-47           
- [7] XML_3.98-1.4            survival_2.39-4         DBI_0.4-1              
-[10] BiocParallel_1.7.4      RColorBrewer_1.1-2      registry_0.3           
+ [4] rtracklayer_1.33.12     GenomicFeatures_1.25.16 chron_2.3-47           
+ [7] XML_3.98-1.4            survival_2.39-5         DBI_0.5-1              
+[10] BiocParallel_1.7.8      RColorBrewer_1.1-2      registry_0.3           
 [13] rngtools_1.2.4          doRNG_1.6               matrixStats_0.50.2     
-[16] plyr_1.8.4              pkgmaker_0.22           stringr_1.0.0          
+[16] plyr_1.8.4              pkgmaker_0.22           stringr_1.1.0          
 [19] zlibbioc_1.19.0         codetools_0.2-14        biomaRt_2.29.2         
-[22] AnnotationDbi_1.35.3    illuminaio_0.15.0       preprocessCore_1.35.0  
-[25] Rcpp_0.12.5             xtable_1.8-2            openssl_0.9.4          
-[28] limma_3.29.10           base64_2.0              annotate_1.51.0        
-[31] Rsamtools_1.25.0        digest_0.6.9            stringi_1.1.1          
-[34] nor1mix_1.2-1           grid_3.3.1              quadprog_1.5-5         
-[37] GEOquery_2.39.3         tools_3.3.1             bitops_1.0-6           
+[22] AnnotationDbi_1.35.4    illuminaio_0.15.1       preprocessCore_1.35.0  
+[25] Rcpp_0.12.7             xtable_1.8-2            openssl_0.9.4          
+[28] limma_3.29.21           base64_2.0              annotate_1.51.1        
+[31] Rsamtools_1.25.2        digest_0.6.10           stringi_1.1.1          
+[34] nor1mix_1.2-2           grid_3.3.1              GEOquery_2.39.4        
+[37] quadprog_1.5-5          tools_3.3.1             bitops_1.0-6           
 [40] magrittr_1.5            siggenes_1.47.0         RCurl_1.95-4.8         
-[43] RSQLite_1.0.0           MASS_7.3-45             Matrix_1.2-6           
-[46] data.table_1.9.6        httr_1.2.0              reshape_0.8.5          
-[49] R6_2.1.2                mclust_5.2              GenomicAlignments_1.9.3
+[43] RSQLite_1.0.0           MASS_7.3-45             Matrix_1.2-7.1         
+[46] data.table_1.9.6        httr_1.2.1              reshape_0.8.5          
+[49] R6_2.1.3                mclust_5.2              GenomicAlignments_1.9.6
 [52] multtest_2.29.0         nlme_3.1-128           
 > q(save = "no")
 > proc.time()
-    user   system  elapsed 
-1022.760   23.241 1048.821 
+   user  system elapsed 
+599.025  10.624 612.544 
